@@ -1,0 +1,66 @@
+#Linux sec
+
+#shadow persmitions
+ chmod 400 /etc/shadow 
+
+#MD5 hash passord for user - run at user 
+ openssl passwd -6 -salt xyz Your_PASS
+ 
+#Disabe ssh root logon
+  vim /etc/ssh/sshd_config
+  PermitRootLogin no
+  
+#Disabe X1Forwarding
+  vim /etc/ssh/sshd_config
+  X11Forwarding no
+  
+#file to ban https://www.cyberciti.biz/faq/how-to-protect-ssh-with-fail2ban-on-centos-8/
+ sudo yum install epel-release -y
+ sudo yum update -y
+ yum install fail2ban -y
+ systemctl enable fail2ban
+ 
+ vim /etc/fail2ban/jail.local
+ 
+ [DEFAULT]
+# Ban IP/hosts for 24 hour ( 24h*3600s = 86400s):
+bantime = 86400
+ 
+# An ip address/host is banned if it has generated "maxretry" during the last "findtime" seconds.
+findtime = 600
+maxretry = 3
+ 
+# "ignoreip" can be a list of IP addresses, CIDR masks or DNS hosts. Fail2ban
+# will not ban a host which matches an address in this list. Several addresses
+# can be defined using space (and/or comma) separator. For example, add your 
+# static IP address that you always use for login such as 103.1.2.3
+
+ignoreip = ADMINs_IPs or DNS
+ 
+# Call iptables to ban IP address
+banaction = iptables-multiport
+ 
+# Enable sshd protection
+[sshd]
+enabled = true
+
+
+:wq
+###################
+sudo systemctl start fail2ban
+sudo systemctl status fail2ban
+
+#check
+ sudo fail2ban-client status
+ sudo fail2ban-client status sshd
+
+# Disable Cocpit root logon
+Disable Cocpit  )))
+
+Workaround: In /etc/pam.d/cockpit have this as the first line:
+
+auth requisite pam_succeed_if.so uid >= 1000
+:
+
+# install iptables
+# Look here https://github.com/valdimirfp/iptables
